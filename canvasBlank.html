@@ -94,25 +94,26 @@
 
     //Repeat Function
     function repeat(){
-      let AnimationSpeed = 5;//Scalable Speed -- just for fun
-      //Clear Previous Sphere with Buffer of Animation Speed and with Reverse Direction
-      //ctx.clearRect(BallObj.posX - (27 + AnimationSpeed*hasReachedX), BallObj.posY - (27 + AnimationSpeed*hasReachedY), 54, 54);
+      //Scalable Speed -- just for fun (Skips frames)
+      let AnimationSpeed = 5;
+      //Clear Previous Frame with Buffer of Animation Speed and with Reverse Direction
+      ctx.clearRect(BallObj.posX - (27 + AnimationSpeed*hasReachedX), BallObj.posY - (27 + AnimationSpeed*hasReachedY), 54, 54);
 
       //Draw Segments with Random Colours Each Frame
-      BallObj.DrawSegment(0 + rotation, `rgb(${Roundam(100,255)},${Roundam(100,255)},${Roundam(100,255)})`);
-      BallObj.DrawSegment(Math.PI/3 + rotation, `rgb(${Roundam(100,255)},${Roundam(100,255)},${Roundam(100,255)})`);
-      BallObj.DrawSegment(2*Math.PI/3 + rotation, `rgb(${Roundam(100,255)},${Roundam(100,255)},${Roundam(100,255)})`);
-      BallObj.DrawSegment(Math.PI + rotation, `rgb(${Roundam(100,255)},${Roundam(100,255)},${Roundam(100,255)})`);
-      BallObj.DrawSegment(4*Math.PI/3 + rotation, `rgb(${Roundam(100,255)},${Roundam(100,255)},${Roundam(100,255)})`);
-      BallObj.DrawSegment(5*Math.PI/3 + rotation, `rgb(${Roundam(100,255)},${Roundam(100,255)},${Roundam(100,255)})`);
+      // BallObj.DrawSegment(0 + rotation, `rgb(${Roundam(100,255)},${Roundam(100,255)},${Roundam(100,255)})`);
+      // BallObj.DrawSegment(Math.PI/3 + rotation, `rgb(${Roundam(100,255)},${Roundam(100,255)},${Roundam(100,255)})`);
+      // BallObj.DrawSegment(2*Math.PI/3 + rotation, `rgb(${Roundam(100,255)},${Roundam(100,255)},${Roundam(100,255)})`);
+      // BallObj.DrawSegment(Math.PI + rotation, `rgb(${Roundam(100,255)},${Roundam(100,255)},${Roundam(100,255)})`);
+      // BallObj.DrawSegment(4*Math.PI/3 + rotation, `rgb(${Roundam(100,255)},${Roundam(100,255)},${Roundam(100,255)})`);
+      // BallObj.DrawSegment(5*Math.PI/3 + rotation, `rgb(${Roundam(100,255)},${Roundam(100,255)},${Roundam(100,255)})`);
 
       //Draw Segments with Specific Colours
-      // BallObj.DrawSegment(0 + rotation, "rgb(255,0,0)");
-      // BallObj.DrawSegment(Math.PI/3 + rotation, "rgb(255,255,255)");
-      // BallObj.DrawSegment(2*Math.PI/3 + rotation, "rgb(0,255,0)");
-      // BallObj.DrawSegment(Math.PI + rotation, "rgb(255,255,255)");
-      // BallObj.DrawSegment(4*Math.PI/3 + rotation, "rgb(0,0,255)");
-      // BallObj.DrawSegment(5*Math.PI/3 + rotation, "rgb(255,255,255)");
+      BallObj.DrawSegment(0 + rotation, "rgb(255,0,0)");
+      BallObj.DrawSegment(Math.PI/3 + rotation, "rgb(255,255,255)");
+      BallObj.DrawSegment(2*Math.PI/3 + rotation, "rgb(0,255,0)");
+      BallObj.DrawSegment(Math.PI + rotation, "rgb(255,255,255)");
+      BallObj.DrawSegment(4*Math.PI/3 + rotation, "rgb(0,0,255)");
+      BallObj.DrawSegment(5*Math.PI/3 + rotation, "rgb(255,255,255)");
 
       //Draw Ball
       BallObj.DrawBall(12.5, "rgb(255, 255, 255)");
@@ -130,8 +131,8 @@
 	  //Move Ball with respect to if the ball has reached the y-axis
       BallObj.posY += AnimationSpeed * hasReachedY;
 
-      // if(rotation % (2 * Math.PI) == 1)rotation = Math.PI/180;
-      // else rotation += Math.PI/180 * AnimationSpeed;
+      if(rotation % (2 * Math.PI) == 1)rotation = Math.PI/180;
+      else rotation += Math.PI/180 * AnimationSpeed;
 
 
       window.requestAnimationFrame(repeat);
