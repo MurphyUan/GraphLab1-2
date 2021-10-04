@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas</title>
+
+    <style type="text/css">
+        canvas.solid {
+            border-style: solid;
+            border-color: black;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <canvas id="canvasOne" class="solid"></canvas>
+
+    <script type="text/javascript">
+
+        //Declare Tools for Graphics
+        let canvas = document.getElementById("canvasOne");// Gets a handle to the element with id canvasOne.
+        let ctx = canvas.getContext("2d");// Set the canvas up for drawing in 2D.
+
+        //Set Canvas Height and Width
+        canvas.width = 450;
+        canvas.height = 900;
+
+        //Set Style for Context
+        ctx.strokeStyle = "rgb(0,0,0)";
+        ctx.fillStyle = "rgb(255,0,0)";
+
+        //Create Pacman class
+        class Pacman {
+            //variables for Pacman
+            reachedX = 1;
+            reachedY = 1;
+            rotation = 0;
+
+            //Construtor
+            constructor(posX, posY, radius, AnimationSpeed) {
+                this.posX = posX;
+                this.posY = posY;
+                this.radius = radius;
+                this.AnimationSpeed = AnimationSpeed;
+            }
+            //Draw Pacman with Offset Rotation
+            draw() {
+                //Clear Previous Frame with Buffer of Animation Speed and with Reverse Direction
+                ctx.clearRect(this.posX - (27 + this.AnimationSpeed * this.reachedX), this.posY - (27 + this.AnimationSpeed * this.reachedY), 54, 54);
+                //Change Colour Style to rgb yellow
+                ctx.fillStyle = "rgb(255, 255, 0)";
+                ctx.beginPath();
+                //Draw arc from 325 to 45 degrees with a rotation from constructor
+                ctx.arc(this.posX, this.posY, this.radius, -Math.PI / 4 + this.rotation, Math.PI / 4 + this.rotation, true);
+                //Draw line to center
+                ctx.lineTo(this.posX, this.posY);
+
+                //Get X Co-ordinate of point on arc
+                let x = this.radius * Math.cos(-Math.PI / 4 + this.rotation) + this.posX;
+                //Get Y Co-Ordinate of point on arc
+                let y = this.radius * Math.sin(-Math.PI / 4 + this.rotation) + this.posY;
+
+                //Draw line to Point on arc
+                ctx.lineTo(x, y);
+
+                //Render Context
+                ctx.fill();
+                ctx.stroke();
+            }
+            //Move Pacman around the screen
+            move() {
+                //Check If Pacman has reached the edge of the canvas on the x-axis
+                if (this.posX <= this.radius) this.reachedX = 1;
+                else if (this.posX >= (canvas.width - this.radius)) this.reachedX = -1;
+
+                //Check If Pacman has reached the edge of the canvas on the y-axis
+                if (this.posY <= this.radius) this.reachedY = 1;
+                else if (this.posY >= (canvas.height - this.radius)) this.reachedY = -1;
+
+                //Move Pacman with respect to if the Pacman has reached the x-axis
+                this.posX += this.AnimationSpeed * this.reachedX;
+                //Move Pacman with respect to if the Pacman has reached the y-axis
+                this.posY += this.AnimationSpeed * this.reachedY;
+
+                //Rotate Pacman with Respect to Animation Speed and Bounces
+                if (this.rotation % (2 * Math.PI) == 1 || -this.rotation % (2 * Math.PI) == 1) this.rotation = Math.PI / 180;
+                else this.rotation += Math.PI / 180 * this.AnimationSpeed * this.reachedX * this.reachedY;
+            }
+        }
+
+        //Instantiate Pacman Object
+        let pacObj = new Pacman(25, 25, 25, 5);
+
+        //Repeat Function
+        function repeat() {
+
+            //Draw Pacman Object
+            pacObj.draw();
+            pacObj.move();
+
+            window.requestAnimationFrame(repeat);
+        }
+
+        //Start Animation
+        repeat();
+    </script>
+</body>
+
+</html>
