@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Canvas</title>
+
+    <style type="text/css">
+		canvas {
+			border:black
+		}
+    </style>
+
+  </head>
+
+  <body>
+
+    <canvas id="canvasOne"></canvas>
+
+    <script type="text/javascript">
+		// Gets a handle to the element with id canvasOne.
+		var canvas = document.getElementById("canvasOne");
+		
+		// Set the canvas up for drawing in 2D.
+		var ctx = canvas.getContext("2d");
+		
+		// Change size of canvas
+		canvas.width = 600;
+		canvas.height = 300;
+		
+		//Add Name to Canvas
+		ctx.fillStyle = "rgb(0, 0, 0)";
+		ctx.font = "20px Arial";
+		ctx.fillText("Uan Murphy", 10, 20);
+		
+		// Set the fill colour to bright purple.
+		ctx.fillStyle = "rgba(255, 0, 255, 0.4)";
+		
+		// Draw First Rectangle
+		ctx.fillRect(30,50,30,50);
+		
+		// Draw Second Rectangle
+		ctx.fillRect(50,30,50,30);
+		
+		// Draw First Circle
+		ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+		ctx.beginPath();
+		ctx.arc(175, 50, 25, 0 , 2 * Math.PI);
+		ctx.closePath();
+		ctx.fill();
+		
+		// Draw Second Circle
+		ctx.fillStyle = "rgba(255, 255, 0, 0.5)";
+		ctx.beginPath();
+		ctx.arc(200, 50, 25, 0, 2*Math.PI, true);
+		ctx.closePath();
+		ctx.fill();
+		
+		// Lab Two
+		
+		class Pacman{
+			constructor(px, py , radius, rotation){
+				this.px = px;
+				this.py = py;
+				this.radius = radius;
+				this.rotation = rotation;
+			}
+			
+			draw(){
+				//Change Colour Style to rgb yellow
+				ctx.fillStyle = "rgb(255, 255, 0)";
+				ctx.beginPath();
+				//Draw arc from 325 to 45 degrees with a rotation from constructor
+				ctx.arc(this.px,this.py,this.radius, -Math.PI/4 + this.rotation, Math.PI/4 + this.rotation, true);
+				//Draw line to center
+				ctx.lineTo(this.px,this.py);
+				
+				//Get X Co-ordinate of point on arc
+				var x = this.radius * Math.cos(-Math.PI/4 + this.rotation) + this.px;
+				//Get Y Co-Ordinate of point on arc
+				var y = this.radius * Math.sin(-Math.PI/4 + this.rotation) + this.py;
+				
+				//Draw line to Point on arc
+				ctx.lineTo(x,y);
+				
+				//Render Context
+				ctx.fill();
+				ctx.stroke();
+			}
+		}
+		
+		//Create Pacman Object p1 and draw
+		p1 = new Pacman(50,150, 25, 0);
+		p1.draw();
+		
+		//Create Pacman Object p2 and draw
+		p2 = new Pacman(100,150, 25, Math.PI);
+		p2.draw();
+    </script>
+
+  </body>
+
+</html>
