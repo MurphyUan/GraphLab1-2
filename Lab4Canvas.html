@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas</title>
+
+    <style type="text/css">
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <h1>Uan Murphy</h1>
+
+    <canvas id="canvas"></canvas>
+
+    <p id="Attributes">No Variables Referenced</p>
+
+    <script type="text/javascript">
+        var noClicks = 0;
+
+        // Gets a handle to the element with id canvasOne.
+        var canvas = document.getElementById("canvas");
+        // Get a 2D context for the canvas.
+        var ctx = canvas.getContext("2d");
+
+        let topPos = canvas.offsetTop;
+        let leftPos = canvas.offsetLeft;
+        let gravity = 1;
+
+        canvas.width = 900;//canvas length
+        canvas.height = 450;//canvas height
+
+
+        //Create Pacman class
+        class Pacman {
+            //variables for Pacman
+            rotation = 0;
+            rotationSpeed = 0;
+            VerticalMovement = 0;
+            HorizontalMovement = 0;
+            globalBounce = 0.9;
+            bounceX = 1;
+            bounceY = 1;
+            lastPosX;
+            lastPosY;
+
+            //Construtor
+            constructor(posX, posY, radius, AnimationSpeed) {
+                this.posX = posX;
+                this.posY = posY;
+                this.radius = radius;
+                this.AnimationSpeed = AnimationSpeed;
+            }
+
+            //Draw Pacman with Offset Rotation
+            draw() {
+                if (this.lastPosX == null || this.lastPosY == null) {
+                    this.lastPosX = this.posX;
+                    this.lastPosY = this.posY;
+                }
+                //Clear Previous Frame with Buffer of Animation Speed and with Reverse Direction
+                this.clearCircle(this.lastPosX, this.lastPosY, this.radius + 1);
+                //Change Colour Style to rgb yellow
+                ctx.fillStyle = "rgb(255, 255, 0)";
+                ctx.strokeStyle = "rgb(0,0,0)";
+                ctx.beginPath();
+                //Draw arc from 325 to 45 degrees with a rotation from constructor
+                ctx.arc(this.posX, this.posY, this.radius, -Math.PI / 6 + this.rotation, Math.PI / 6 + this.rotation, true);
+                //Draw line to center
+                ctx.lineTo(this.posX, this.posY);
+
+                //Get X Co-ordinate of point on arc
+                let x = this.radius * Math.cos(-Math.PI / 6 + this.rotation) + this.posX;
+                //Get Y Co-Ordinate of point on arc
+                let y = this.radius * Math.sin(-Math.PI / 6 + this.rotation) + this.posY;
+
+                //Draw line to Point on arc
+                ctx.lineTo(x, y);
+
+                //Render Context
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            //Move Pacman around the screen
+            move(bool) {
+                //Save Previous X and Y co-ordinates
+                this.lastPosX = this.posX;
+                this.lastPosY = this.posY;
+
+                //Check If Pacman has reached the edge of the canvas on the x-axis
+                this.HorizontalMovement = this.posX <= this.radius
+                    ? () => { bounceX -= 1; return Math.abs(this.HorizontalMovement * this.globalBounce) }
+                    : (this.posX >= (canvas.width - this.radius)
+                        ? () => { bounceX -= 1; return -Math.abs(this.HorizontalMovement * this.globalBounce) }
+                        : this.HorizontalMovement);
+
+                //Check If Pacman has reached the edge of the canvas on the y-axis
+                this.VerticalMovement = this.posY <= this.radius
+                    ? () => { bounceY -= 1; return Math.abs(this.VerticalMovement * this.globalBounce) }
+                    : (this.posY >= (canvas.height - this.radius)
+                        ? () => { bounceY -= 1; return -Math.abs(this.VerticalMovement * this.globalBounce) }
+                        : bool 
+                            ? this.VerticalMovement + gravity
+                            : this.VerticalMovement);
+
+                //Move Pacman with respect to if the Pacman has reached the x-axis
+                this.posX += this.HorizontalMovement;
+                //Move Pacman with respect to if the Pacman has reached the y-axis
+                this.posY += this.VerticalMovement;
+
+                //Rotation Based on Velocity
+                // let theta = Math.atan2(this.posY - this.lastPosY, this.posX - this.lastPosX);
+                // this.rotation = theta < 0 ? -Math.abs(theta) : theta - 2 * Math.PI;
+
+                //Rotate Pacman with Respect to RotationSpeed
+                this.rotation += Math.PI / 180 * this.rotationSpeed * this.bounceX * this.bounceY;
+            }
+
+            controller(e) {
+                switch (e.which) {
+                    case 87: {//W Key Press
+                        //Move Pacman object along the y-axis -
+                        this.VerticalMovement -= this.AnimationSpeed;
+                        break;
+                    }
+                    case 65: {//A Key Press
+                        //Move Pacman object along the x-axis -
+                        this.HorizontalMovement -= this.AnimationSpeed;
+                        break;
+                    }
+                    case 83: {//S Key Press
+                        //Move Pacman object along the y-axis +
+                        this.VerticalMovement += this.AnimationSpeed;
+                        break;
+                    }
+                    case 68: {//D Key Press
+                        //Move Pacman object along the x-axis +
+                        this.HorizontalMovement += this.AnimationSpeed;
+                        break;
+                    }
+                    case 69: {//E Key Press
+                        this.rotationSpeed += this.AnimationSpeed;
+                        break;
+                    }
+                    case 81: {//Q Key Press
+                        this.rotationSpeed -= this.AnimationSpeed;
+                        break;
+                    }
+                }
+
+            }
+
+            reposition(e) {
+                this.posX = e.clientX - leftPos;
+                this.posY = e.clientY - topPos;
+                this.HorizontalMovement = 0;
+                this.VerticalMovement = 0;
+                this.draw();
+            }
+
+            //Custom Clear Method
+            clearCircle(x, y, radius) {
+                ctx.beginPath();
+                ctx.fillStyle = "rgb(255,255,255)";
+                ctx.strokeStyle = "rgb(255,255,255)";
+                ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.fill();
+            }
+
+            displayValues() {
+                return `X: ${Math.floor(this.posX)}, Y: ${Math.floor(this.posY)}<br />
+                SpeedX: ${Math.floor(this.HorizontalMovement)}, Speed Y: ${Math.floor(this.VerticalMovement)}<br />
+                RotationSpeed :${Math.floor(this.rotationSpeed)}`;
+            }
+        }
+
+        let pacman = new Pacman(canvas.width / 2, canvas.height / 2, 5, 5);
+
+        let pacman2 = new Pacman(canvas.width / 2, canvas.height / 2, 5, 5);
+        pacman2.HorizontalMovement = 5;
+        pacman2.VerticalMovement = -20;
+
+        //Double Click Event Listener
+        canvas.addEventListener("dblclick", function (e) {
+            pacman.reposition(e);
+        });
+
+        document.addEventListener('keydown', function (e) {
+            pacman.controller(e);
+        });
+
+        //Allow Animation
+        function repeat() {
+
+            pacman.draw();
+            pacman.move(true);
+
+            //pacman2.move(false);
+
+            document.getElementById("Attributes").innerHTML = pacman.displayValues();
+
+            window.requestAnimationFrame(repeat);
+        }
+
+        //Start Animation
+        repeat();
+    </script>
+
+</body>
+
+
+
+</html>
