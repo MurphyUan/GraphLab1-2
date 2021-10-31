@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Collisions</title>
+
+    <style type="text/css">
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+
+</head>
+
+<body>
+    <h1>Uan Murphy</h1>
+    <canvas id="canvas"></canvas>
+    <a id="Timer"></a>
+
+    <script type="text/javascript">
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+
+        let topPos = canvas.offsetTop;
+        let leftPos = canvas.offsetLeft;
+        canvas.width = 900;
+        canvas.height = 450;
+
+        let lastCheck = 0;
+        let tSC = 0;
+
+        class Pacman {
+            //variables for Pacman
+            R = 0;
+            RS = 0;
+            VM = 0;
+            HM = 0;
+            bounceX = 1;
+            bounceY = 1;
+            lpX;
+            lpY;
+
+            //Construtor
+            constructor(pX, pY, radius, Speed, colour, hasGravity, hasFriction) {
+                this.pX = pX;
+                this.pY = pY;
+                this.radius = radius;
+                this.Speed = Speed;
+                this.colour = colour;
+                this.gravity = hasGravity ? 1 : 0;
+                this.friction = hasFriction ? 0.9 : 1;
+            }
+
+            //Draw Pacman with Offset Rotation
+            draw() {
+                if (this.lpX == null || this.lpY == null) {
+                    this.lpX = this.pX;
+                    this.lpY = this.pY;
+                }
+                //Clear Previous Frame with Buffer of Animation Speed and with Reverse Direction
+                this.clearCircle(this.lpX, this.lpY, this.radius + 1);
+                //Change Colour Style to rgb yellow
+                ctx.fillStyle = this.colour;
+                ctx.strokeStyle = "rgb(0,0,0)";
+                ctx.beginPath();
+                //Draw arc from 325 to 45 degrees with a rotation from constructor
+                ctx.arc(this.pX, this.pY, this.radius, -Math.PI / 6 + this.R, Math.PI / 6 + this.R, true);
+                //Draw line to center
+                ctx.lineTo(this.pX, this.pY);
+
+                //Get X Co-ordinate of point on arc
+                let x = this.radius * Math.cos(-Math.PI / 6 + this.R) + this.pX;
+                //Get Y Co-Ordinate of point on arc
+                let y = this.radius * Math.sin(-Math.PI / 6 + this.R) + this.pY;
+
+                //Draw line to Point on arc
+                ctx.lineTo(x, y);
+
+                //Render Context
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            //Move Pacman around the screen
+            move() {
+                //Save Previous X and Y co-ordinates
+                this.lpX = this.pX;
+                this.lpY = this.pY;
+
+                //Move With Current velocityX and velocityY
+                this.pX += this.HM;
+                this.pY += this.VM;
+
+                //Checks if the Object is within the bounds of the arena
+                this.checkBounds();
+
+                //Rotation Based on Velocity
+                // let theta = Math.atan2(this.posY - this.lastPosY, this.posX - this.lastPosX);
+                // this.rotation = theta < 0 ? -Math.abs(theta) : theta - 2 * Math.PI;
+
+                //Rotate Pacman with Respect to RotationSpeed
+                this.R += Math.PI / 180 * this.RS;
+            }
+
+            checkBounds(){
+                if(this.pX <= this.radius){
+                    this.HM = Math.abs(this.HM) * this.friction;
+                }else if(this.pX >= canvas.width - this.radius){
+                    this.HM = -Math.abs(this.HM) * this.friction;
+                }
+                if(this.pY <= this.radius){
+                    this.VM = Math.abs(this.VM) * this.friction;
+                }else if(this.pY >= canvas.height - this.radius){
+                    this.VM = -Math.abs(this.VM) * this.friction;
+                }else{
+                    this.VM += this.gravity;
+                }
+            }
+
+            checkCollisionPac(){
+                let distance;
+
+                pacList.allPacmen.forEach(element => {
+                    if(element != this){
+                        distance = Math.sqrt((this.pX - pacList[i].posX)**2 + (this.pY - pacList[i].posY)**2);//Distance between two points
+                        if(distance <= this.radius - element.radius){//Collision has occured
+                            this.HM -= element.HM;
+                            this.VM -= element.VM;
+                        }
+                    }
+                });
+            }
+
+            controller(e) {
+                switch (e.which) {
+                    case 87: {//W Key Press
+                        //Move Pacman object along the y-axis -
+                        this.VM -= this.Speed;
+                        break;
+                    }
+                    case 65: {//A Key Press
+                        //Move Pacman object along the x-axis -
+                        this.HM -= this.Speed;
+                        break;
+                    }
+                    case 83: {//S Key Press
+                        //Move Pacman object along the y-axis +
+                        this.VM += this.Speed;
+                        break;
+                    }
+                    case 68: {//D Key Press
+                        //Move Pacman object along the x-axis +
+                        this.HM += this.Speed;
+                        break;
+                    }
+                    case 69: {//E Key Press
+                        this.RS += this.Speed;
+                        break;
+                    }
+                    case 81: {//Q Key Press
+                        this.RS -= this.Speed;
+                        break;
+                    }
+                }
+
+            }
+
+            reposition(e) {
+                this.pX = e.clientX - leftPos;
+                this.pY = e.clientY - topPos;
+                this.HM = 0;
+                this.VM = 0;
+                this.draw();
+            }
+
+            clearCircle(x, y, radius) {
+                ctx.beginPath();
+                ctx.fillStyle = "rgb(255,255,255)";
+                ctx.strokeStyle = "rgb(255,255,255)";
+                ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.fill();
+            }
+        }
+
+        class Pacmen{
+            constructor(){
+                this.pacmen = [];
+            }
+
+            newPacman(pX, pY, radius, Speed, colour, hasGravity, hasFriction){
+                let p = new Pacman(pX, pY, radius, Speed, colour, hasGravity, hasFriction);
+                this.pacmen.push(p);
+                return p;
+            }
+
+            get allPacmen(){
+                return this.pacmen;
+            }
+
+            get NumberPacmen(){
+                return this.pacmen.length;
+            }
+        }
+
+        let pacList = new Pacmen();
+        
+        let pacman = pacList.newPacman(canvas.width / 2, canvas.height / 2, 25, 5, 'rgb(255,255,0)', true, true);
+
+        let pacman2 = pacList.newPacman(canvas.width / 2, 50, 25, 5, 'rgb(0,255,0)', true, false);
+
+        //Double Click Event Listener
+        canvas.addEventListener("dblclick", function (e) {
+            pacman.reposition(e);
+        });
+
+        // KeyDown Event Listener, moves pacman object
+        document.addEventListener('keydown', function (e) {
+            pacman.controller(e);
+        });
+
+        //Allow Animation
+        function repeat(timeStamp) {
+            const deltaTime = timeStamp - lastCheck;
+            lastCheck = timeStamp;
+
+            if(tSC > 500){
+                document.getElementById("Attributes").innerHTML = "";
+            }else tSC += deltaTime;
+
+            pacList.allPacmen.forEach(e => {
+                e.draw();
+                e.move();
+            });
+
+            window.requestAnimationFrame(repeat);
+        }
+
+        //Start Animation
+        repeat();
+    </script>
+</body>
+
+</html>
